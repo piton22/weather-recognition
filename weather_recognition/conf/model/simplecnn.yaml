@@ -1,0 +1,2 @@
+_target_: models.model_baseline.SimpleCNN
+num_classes: ???

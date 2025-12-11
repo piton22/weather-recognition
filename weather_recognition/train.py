@@ -1,49 +1,70 @@
 # train.py
+
+from pathlib import Path
+
+import hydra
 import pytorch_lightning as pl
+import torch
+from data.datamodule import WeatherDataModule
+from hydra.utils import instantiate
+from litmodule import LitWeather
+from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 
-from dataset import WeatherDataset
-from transforms import train_transform, val_test_transform
-from model_baseline import SimpleCNN
-from model_resnet import ResNet18Classifier
-from litmodule import LitWeather
 
-from torch.utils.data import random_split, DataLoader
+@hydra.main(config_path="conf", config_name="config", version_base=None)
+def main(cfg: DictConfig):
+    print(OmegaConf.to_yaml(cfg))
 
-data_path = "/content/drive/MyDrive/weather-recognition-dataset"
+    # --- DataModule ---
+    dm = WeatherDataModule(
+        data_dir=cfg.data.data_dir,
+        batch_size=cfg.data.batch_size,
+        num_workers=cfg.data.num_workers,
+        train_val_split=cfg.data.train_val_split,
+        val_split_within=cfg.data.val_split_within,
+    )
+    dm.setup()
 
-dataset = WeatherDataset(data_path, transform=train_transform)
-num_classes = len(dataset.classes)
+    # --- Set number of classes ---
+    cfg.model.num_classes = len(dm.classes)
 
-# split
-train_val_size = int(0.8 * len(dataset))
-test_size = len(dataset) - train_val_size
-train_val, test = random_split(dataset, [train_val_size, test_size])
+    # --- Instantiate model ---
+    model = instantiate(cfg.model)
+    lit_model = LitWeather(model)
 
-val_size = int(0.2 * len(train_val))
-train_size = len(train_val) - val_size
-train_set, val_set = random_split(train_val, [train_size, val_size])
-
-# apply transforms
-train_set.dataset.transform = train_transform
-val_set.dataset.transform = val_test_transform
-test.dataset.transform = val_test_transform
-
-train_loader = DataLoader(train_set, batch_size=512, shuffle=True, num_workers=4)
-val_loader = DataLoader(val_set, batch_size=512, shuffle=False, num_workers=4)
-test_loader = DataLoader(test, batch_size=512, shuffle=False, num_workers=4)
-
-# Baseline model
-baseline = SimpleCNN(num_classes)
-lit_baseline = LitWeather(baseline)
-
-trainer = pl.Trainer(
-    max_epochs=10,
-    callbacks=[
-        EarlyStopping(monitor="val_loss", patience=5),
-        ModelCheckpoint(save_top_k=1, monitor="val_loss", filename="best_baseline")
+    # --- Callbacks ---
+    callbacks = [
+        EarlyStopping(
+            monitor=cfg.train.early_stopping.monitor,
+            patience=cfg.train.early_stopping.patience,
+        ),
+        ModelCheckpoint(
+            save_top_k=cfg.train.checkpoint.save_top_k,
+            monitor=cfg.train.checkpoint.monitor,
+            filename=cfg.train.checkpoint.filename,
+        ),
     ]
-)
 
-trainer.fit(lit_baseline, train_loader, val_loader)
-trainer.test(lit_baseline, test_loader)
+    trainer = pl.Trainer(max_epochs=cfg.train.max_epochs, callbacks=callbacks)
+
+    # --- Train & Test ---
+    trainer.fit(lit_model, dm)
+    trainer.test(lit_model, dm)
+
+    # ----------------------------------------------------
+    # Сохранение модели вручную в путь из config
+    # ----------------------------------------------------
+    save_path = cfg.train.save_path
+
+    # создаём директорию, если её нет
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+
+    # сохраняем state_dict чистой модели, без Lightning-обёртки
+    torch.save(model.state_dict(), save_path)
+
+    print(f"\n Модель сохранена в: {save_path}\n")
+
+
+if __name__ == "__main__":
+    main()

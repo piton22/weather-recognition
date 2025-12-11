@@ -1,0 +1,6 @@
+data_dir: /dataset
+batch_size: 512
+num_workers: 4
+
+train_val_split: 0.8
+val_split_within: 0.2

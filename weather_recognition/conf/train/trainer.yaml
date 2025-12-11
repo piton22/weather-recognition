@@ -1,0 +1,12 @@
+max_epochs: 10
+
+early_stopping:
+  patience: 5
+  monitor: val_loss
+
+checkpoint:
+  save_top_k: 1
+  monitor: val_loss
+  filename: "best_model"
+
+save_path: "models/final_model.pt"

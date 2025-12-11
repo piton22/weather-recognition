@@ -1,0 +1,6 @@
+defaults:
+  - data: datamodule
+  - model: resnet18
+  - train: trainer
+
+seed: 42

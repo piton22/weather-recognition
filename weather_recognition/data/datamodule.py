@@ -1,7 +1,6 @@
+import pytorch_lightning as pl
 import torch
 from torch.utils.data import DataLoader, random_split
-
-import pytorch_lightning as pl
 
 from .dataset import WeatherDataset
 from .transforms import train_transform, val_test_transform
@@ -39,9 +38,7 @@ class WeatherDataModule(pl.LightningDataModule):
         train_val_size = int(self.train_val_split * len(self.dataset))
         test_size = len(self.dataset) - train_val_size
         train_val, test = random_split(
-            self.dataset,
-            [train_val_size, test_size],
-            generator=torch.Generator().manual_seed(42)
+            self.dataset, [train_val_size, test_size], generator=torch.Generator().manual_seed(42)
         )
 
         # Разделяем train и val
@@ -49,9 +46,7 @@ class WeatherDataModule(pl.LightningDataModule):
         train_size = len(train_val) - val_size
 
         self.train_set, self.val_set = random_split(
-            train_val,
-            [train_size, val_size],
-            generator=torch.Generator().manual_seed(42)
+            train_val, [train_size, val_size], generator=torch.Generator().manual_seed(42)
         )
 
         # Назначаем трансформации
@@ -63,21 +58,27 @@ class WeatherDataModule(pl.LightningDataModule):
 
     def train_dataloader(self):
         return DataLoader(
-            self.train_set, batch_size=self.batch_size,
-            shuffle=True, num_workers=self.num_workers,
-            pin_memory=True
+            self.train_set,
+            batch_size=self.batch_size,
+            shuffle=True,
+            num_workers=self.num_workers,
+            pin_memory=True,
         )
 
     def val_dataloader(self):
         return DataLoader(
-            self.val_set, batch_size=self.batch_size,
-            shuffle=False, num_workers=self.num_workers,
-            pin_memory=True
+            self.val_set,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+            pin_memory=True,
         )
 
     def test_dataloader(self):
         return DataLoader(
-            self.test_set, batch_size=self.batch_size,
-            shuffle=False, num_workers=self.num_workers,
-            pin_memory=True
+            self.test_set,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+            pin_memory=True,
         )

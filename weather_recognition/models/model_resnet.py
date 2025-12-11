@@ -1,5 +1,6 @@
-import torch.nn as nn
+from torch import nn
 from torchvision import models
+
 
 class ResNet18Classifier(nn.Module):
     def __init__(self, num_classes):
@@ -23,7 +24,7 @@ class ResNet18Classifier(nn.Module):
             nn.Linear(in_f, 256),
             nn.ReLU(),
             nn.Dropout(0.3),
-            nn.Linear(256, num_classes)
+            nn.Linear(256, num_classes),
         )
 
     def forward(self, x):

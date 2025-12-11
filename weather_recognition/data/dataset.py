@@ -1,7 +1,8 @@
 import os
+
 import torch
-from torch.utils.data import Dataset
 from PIL import Image, ImageFile
+from torch.utils.data import Dataset
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -13,10 +14,9 @@ class WeatherDataset(Dataset):
         self.root_dir = root_dir
         self.transform = transform
 
-        self.classes = sorted([
-            d for d in os.listdir(root_dir)
-            if os.path.isdir(os.path.join(root_dir, d))
-        ])
+        self.classes = sorted(
+            [d for d in os.listdir(root_dir) if os.path.isdir(os.path.join(root_dir, d))]
+        )
 
         self.class_to_idx = {cls: i for i, cls in enumerate(self.classes)}
         self.samples = []
@@ -25,9 +25,7 @@ class WeatherDataset(Dataset):
             cls_dir = os.path.join(root_dir, cls)
             for fname in os.listdir(cls_dir):
                 if os.path.splitext(fname)[1].lower() in valid_extensions:
-                    self.samples.append(
-                        (os.path.join(cls_dir, fname), self.class_to_idx[cls])
-                    )
+                    self.samples.append((os.path.join(cls_dir, fname), self.class_to_idx[cls]))
 
     def __len__(self):
         return len(self.samples)
