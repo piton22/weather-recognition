@@ -11,6 +11,8 @@ class LitWeather(pl.LightningModule):
         self.lr = lr
         self.weight_decay = weight_decay
 
+        self.save_hyperparameters(ignore=["model"])
+
     def forward(self, x):
         return self.model(x)
 
@@ -25,7 +27,10 @@ class LitWeather(pl.LightningModule):
         )
         return {
             "optimizer": optimizer,
-            "lr_scheduler": {"scheduler": scheduler, "monitor": "val_loss"},
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "monitor": "val_loss",
+            },
         }
 
     def step(self, batch):
@@ -33,17 +38,50 @@ class LitWeather(pl.LightningModule):
         logits = self(x)
         loss = F.cross_entropy(logits, y)
         preds = torch.argmax(logits, dim=1)
-        return loss, preds, y
+        acc = (preds == y).float().mean()
+        return loss, acc
 
     def training_step(self, batch, batch_idx):
-        loss, preds, y = self.step(batch)
-        self.log("train_loss", loss, prog_bar=True)
+        loss, acc = self.step(batch)
+
+        # --- логирование для MLflow ---
+        self.log(
+            "train_loss",
+            loss,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+        self.log(
+            "train_acc",
+            acc,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+
         return loss
 
     def validation_step(self, batch, batch_idx):
-        loss, preds, y = self.step(batch)
-        self.log("val_loss", loss, prog_bar=True)
+        loss, acc = self.step(batch)
+
+        self.log(
+            "val_loss",
+            loss,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+        self.log(
+            "val_acc",
+            acc,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
 
     def test_step(self, batch, batch_idx):
-        loss, preds, y = self.step(batch)
-        self.log("test_loss", loss)
+        loss, acc = self.step(batch)
+
+        self.log("test_loss", loss, on_epoch=True)
+        self.log("test_acc", acc, on_epoch=True)

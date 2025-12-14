@@ -9,4 +9,4 @@ checkpoint:
   monitor: val_loss
   filename: "best_model"
 
-save_path: "models/final_model.pt"
+save_path: "models/${hydra:runtime.choices.model}/final_model.pt"
