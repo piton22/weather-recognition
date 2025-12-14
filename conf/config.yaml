@@ -1,4 +1,5 @@
 defaults:
+  - _self_
   - data: datamodule
   - model: resnet18
   - train: trainer
