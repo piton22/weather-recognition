@@ -11,7 +11,7 @@ from data.dvc_utils import pull_data
 from data.transforms import val_test_transform
 
 
-@hydra.main(config_path="conf", config_name="config", version_base=None)
+@hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg: DictConfig):
     # --- DVC ---
     pull_data()

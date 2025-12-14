@@ -2,8 +2,8 @@ import pytorch_lightning as pl
 import torch
 from torch.utils.data import DataLoader, random_split
 
-from .dataset import WeatherDataset
-from .transforms import train_transform, val_test_transform
+from data.dataset import WeatherDataset
+from data.transforms import train_transform, val_test_transform
 
 
 class WeatherDataModule(pl.LightningDataModule):
