@@ -22,7 +22,7 @@ def get_git_commit_id() -> str:
         return "unknown"
 
 
-@hydra.main(config_path="./conf", config_name="config", version_base=None)
+@hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg: DictConfig):
     pull_data()
     print(OmegaConf.to_yaml(cfg))
