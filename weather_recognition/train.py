@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import subprocess
+import requests
 
 import hydra
 import pytorch_lightning as pl
@@ -12,7 +13,7 @@ from hydra.utils import instantiate
 from litmodule import LitWeather
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from pytorch_lightning.loggers import MLFlowLogger, TensorBoardLogger
+from pytorch_lightning.loggers import MLFlowLogger, TensorBoardLogger, LoggerCollection
 
 
 def get_git_commit_id() -> str:
@@ -20,6 +21,14 @@ def get_git_commit_id() -> str:
         return subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
     except Exception:
         return "unknown"
+    
+
+def mlflow_available(uri: str) -> bool:
+    try:
+        requests.get(uri, timeout=1)
+        return True
+    except Exception:
+        return False
 
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
@@ -27,22 +36,7 @@ def main(cfg: DictConfig):
     pull_data()
     print(OmegaConf.to_yaml(cfg))
 
-    # -------------------------
-    # MLflow logger
-    # -------------------------
-    mlflow_logger = MLFlowLogger(
-        experiment_name=cfg.mlflow.experiment_name,
-        tracking_uri=cfg.mlflow.tracking_uri,
-    )
-
-    # логируем commit id
-    mlflow_logger.experiment.log_param(
-        mlflow_logger.run_id,
-        "git_commit_id",
-        get_git_commit_id(),
-    )
-
-    mlflow_logger.log_hyperparams(OmegaConf.to_container(cfg, resolve=True))
+    loggers = []
 
     # -------------------------
     # TensorBoard logger
@@ -51,6 +45,34 @@ def main(cfg: DictConfig):
         save_dir=cfg.logging.save_dir,
         name=cfg.logging.name,
     )
+    loggers.append(tb_logger)
+
+    # -------------------------
+    # MLflow logger (только если доступен)
+    # -------------------------
+    if mlflow_available(cfg.mlflow.tracking_uri):
+        mlflow_logger = MLFlowLogger(
+            experiment_name=cfg.mlflow.experiment_name,
+            tracking_uri=cfg.mlflow.tracking_uri,
+        )
+        # логируем commit id и гиперпараметры
+        mlflow_logger.experiment.log_param(
+            mlflow_logger.run_id,
+            "git_commit_id",
+            get_git_commit_id(),
+        )
+        mlflow_logger.log_hyperparams(OmegaConf.to_container(cfg, resolve=True))
+        loggers.append(mlflow_logger)
+        print("[INFO] MLflow logger enabled")
+    else:
+        print("[WARN] MLflow server not available. Skipping MLflow logging.")
+        mlflow_logger = None
+
+    # объединяем логгеры
+    if len(loggers) > 1:
+        logger = LoggerCollection(loggers)
+    else:
+        logger = loggers[0]
 
     # --- DataModule ---
     dm = WeatherDataModule(
@@ -85,7 +107,7 @@ def main(cfg: DictConfig):
     trainer = pl.Trainer(
         max_epochs=cfg.train.max_epochs,
         callbacks=callbacks,
-        logger=[mlflow_logger, tb_logger],
+        logger=logger,
     )
 
     # --- Train & Test ---
@@ -97,7 +119,7 @@ def main(cfg: DictConfig):
     Path(save_path).parent.mkdir(parents=True, exist_ok=True)
     torch.save(model.state_dict(), save_path)
 
-    print(f"\n Модель сохранена в: {save_path}\n")
+    print(f"\nМодель сохранена в: {save_path}\n")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,30 @@
+data:
+  data_dir: ${hydra:runtime.cwd}/dataset
+  batch_size: 512
+  num_workers: 4
+  train_val_split: 0.8
+  val_split_within: 0.2
+model:
+  _target_: models.model_resnet.ResNet18Classifier
+  num_classes: ???
+train:
+  max_epochs: 10
+  early_stopping:
+    patience: 5
+    monitor: val_loss
+  checkpoint:
+    save_top_k: 1
+    monitor: val_loss
+    filename: best_model
+  save_path: models/${hydra:runtime.choices.model}/final_model.pt
+infer:
+  image_path: null
+  model_path: models/${hydra:runtime.choices.model}/final_model.pt
+  device: cpu
+mlflow:
+  tracking_uri: http://127.0.0.1:8080
+  experiment_name: weather_recognition
+logging:
+  save_dir: logs
+  name: weather_recognition
+seed: 42
