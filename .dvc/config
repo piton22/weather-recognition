@@ -1,6 +1,6 @@
 [core]
     remote = yc
 ['remote "yc"']
-    url = s3://weather-recognition-storage
+    url = http://weather-recognition-storage
     endpointurl = https://storage.yandexcloud.net
     region = ru-central1
