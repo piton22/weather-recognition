@@ -1,4 +1,4 @@
-data_dir: ${hydra:runtime.cwd}/../dataset
+data_dir: ${hydra:runtime.cwd}/dataset
 batch_size: 512
 num_workers: 4
 
