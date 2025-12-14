@@ -12,7 +12,7 @@ from hydra.utils import instantiate
 from litmodule import LitWeather
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from pytorch_lightning.loggers import MLFlowLogger
+from pytorch_lightning.loggers import MLFlowLogger, TensorBoardLogger
 
 
 def get_git_commit_id() -> str:
@@ -22,7 +22,7 @@ def get_git_commit_id() -> str:
         return "unknown"
 
 
-@hydra.main(config_path="../conf", config_name="config", version_base=None)
+@hydra.main(config_path="./conf", config_name="config", version_base=None)
 def main(cfg: DictConfig):
     pull_data()
     print(OmegaConf.to_yaml(cfg))
@@ -42,8 +42,15 @@ def main(cfg: DictConfig):
         get_git_commit_id(),
     )
 
-    # логируем ВСЕ hyperparameters из config
     mlflow_logger.log_hyperparams(OmegaConf.to_container(cfg, resolve=True))
+
+    # -------------------------
+    # TensorBoard logger
+    # -------------------------
+    tb_logger = TensorBoardLogger(
+        save_dir=cfg.logging.save_dir,
+        name=cfg.logging.name,
+    )
 
     # --- DataModule ---
     dm = WeatherDataModule(
@@ -78,7 +85,7 @@ def main(cfg: DictConfig):
     trainer = pl.Trainer(
         max_epochs=cfg.train.max_epochs,
         callbacks=callbacks,
-        logger=mlflow_logger,
+        logger=[mlflow_logger, tb_logger],
     )
 
     # --- Train & Test ---

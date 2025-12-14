@@ -4,5 +4,6 @@ defaults:
   - train: trainer
   - infer: infer
   - mlflow: mlflow
+  - logging: tensorboard
 
 seed: 42
