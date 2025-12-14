@@ -13,7 +13,7 @@ from hydra.utils import instantiate
 from litmodule import LitWeather
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from pytorch_lightning.loggers import MLFlowLogger, TensorBoardLogger, LoggerCollection
+from pytorch_lightning.loggers import MLFlowLogger, TensorBoardLogger
 
 
 def get_git_commit_id() -> str:
@@ -68,11 +68,6 @@ def main(cfg: DictConfig):
         print("[WARN] MLflow server not available. Skipping MLflow logging.")
         mlflow_logger = None
 
-    # объединяем логгеры
-    if len(loggers) > 1:
-        logger = LoggerCollection(loggers)
-    else:
-        logger = loggers[0]
 
     # --- DataModule ---
     dm = WeatherDataModule(
@@ -107,7 +102,7 @@ def main(cfg: DictConfig):
     trainer = pl.Trainer(
         max_epochs=cfg.train.max_epochs,
         callbacks=callbacks,
-        logger=logger,
+        logger=loggers,
     )
 
     # --- Train & Test ---
