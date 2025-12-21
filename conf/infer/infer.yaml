@@ -1,3 +1,0 @@
-image_path: null
-model_path: "models/${hydra:runtime.choices.model}/final_model.pt"
-device: cpu

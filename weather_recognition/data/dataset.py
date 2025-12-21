@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import torch
 from PIL import Image, ImageFile
@@ -14,18 +14,16 @@ class WeatherDataset(Dataset):
         self.root_dir = root_dir
         self.transform = transform
 
-        self.classes = sorted(
-            [d for d in os.listdir(root_dir) if os.path.isdir(os.path.join(root_dir, d))]
-        )
+        self.classes = sorted(entry.name for entry in Path(root_dir).iterdir() if entry.is_dir())
 
         self.class_to_idx = {cls: i for i, cls in enumerate(self.classes)}
         self.samples = []
 
         for cls in self.classes:
-            cls_dir = os.path.join(root_dir, cls)
-            for fname in os.listdir(cls_dir):
-                if os.path.splitext(fname)[1].lower() in valid_extensions:
-                    self.samples.append((os.path.join(cls_dir, fname), self.class_to_idx[cls]))
+            cls_dir = Path(root_dir) / cls
+            for path in cls_dir.iterdir():
+                if path.suffix.lower() in valid_extensions:
+                    self.samples.append((cls_dir / path.name, self.class_to_idx[cls]))
 
     def __len__(self):
         return len(self.samples)

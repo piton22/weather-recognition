@@ -3,7 +3,6 @@ defaults:
   - data: datamodule
   - model: resnet18
   - train: trainer
-  - infer: infer
   - mlflow: mlflow
   - logging: tensorboard
 

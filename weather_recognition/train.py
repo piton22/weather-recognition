@@ -1,11 +1,9 @@
-# train.py
-
-from pathlib import Path
 import subprocess
-import requests
+from pathlib import Path
 
 import hydra
 import pytorch_lightning as pl
+import requests
 import torch
 from data.datamodule import WeatherDataModule
 from data.dvc_utils import pull_data
@@ -21,7 +19,7 @@ def get_git_commit_id() -> str:
         return subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
     except Exception:
         return "unknown"
-    
+
 
 def mlflow_available(uri: str) -> bool:
     try:
@@ -68,7 +66,6 @@ def main(cfg: DictConfig):
         print("[WARN] MLflow server not available. Skipping MLflow logging.")
         mlflow_logger = None
 
-
     # --- DataModule ---
     dm = WeatherDataModule(
         data_dir=cfg.data.data_dir,
@@ -114,7 +111,7 @@ def main(cfg: DictConfig):
     Path(save_path).parent.mkdir(parents=True, exist_ok=True)
     torch.save(model.state_dict(), save_path)
 
-    print(f"\nМодель сохранена в: {save_path}\n")
+    print(f"Model saved in: {save_path}\n")
 
 
 if __name__ == "__main__":

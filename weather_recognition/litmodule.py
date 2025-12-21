@@ -1,7 +1,6 @@
-# litmodule.py
 import pytorch_lightning as pl
 import torch
-import torch.nn.functional as F
+import torch.nn.functional as fnc
 
 
 class LitWeather(pl.LightningModule):
@@ -13,12 +12,12 @@ class LitWeather(pl.LightningModule):
 
         self.save_hyperparameters(ignore=["model"])
 
-    def forward(self, x):
-        return self.model(x)
+    def forward(self, images):
+        return self.model(images)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(
-            filter(lambda p: p.requires_grad, self.model.parameters()),
+            filter(lambda param: param.requires_grad, self.model.parameters()),
             lr=self.lr,
             weight_decay=self.weight_decay,
         )
@@ -34,11 +33,11 @@ class LitWeather(pl.LightningModule):
         }
 
     def step(self, batch):
-        x, y = batch
-        logits = self(x)
-        loss = F.cross_entropy(logits, y)
+        images, labels = batch
+        logits = self(images)
+        loss = fnc.cross_entropy(logits, labels)
         preds = torch.argmax(logits, dim=1)
-        acc = (preds == y).float().mean()
+        acc = (preds == labels).float().mean()
         return loss, acc
 
     def training_step(self, batch, batch_idx):
