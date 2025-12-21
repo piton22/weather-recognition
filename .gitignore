@@ -211,3 +211,9 @@ __marimo__/
 /outputs
 weather_recognition/logs/
 mlflow.db
+logs/
+lightning_logs/
+*.ckpt
+*.pt
+*.pth
+models/*/

@@ -1,2 +1,2 @@
-_target_: models.model_resnet.ResNet18Classifier
+_target_: weather_recognition.models.model_resnet.ResNet18Classifier
 num_classes: ???
