@@ -2,6 +2,7 @@ defaults:
   - _self_
   - data: datamodule
   - model: resnet18
+  - litmodule: model.resnet18.litmodule
   - train: trainer
   - mlflow: mlflow
   - logging: tensorboard

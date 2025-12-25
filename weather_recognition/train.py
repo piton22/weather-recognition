@@ -84,10 +84,10 @@ def main(cfg: DictConfig):
     model = instantiate(cfg.model)
     lit_model = LitWeather(
         model,
-        lr=cfg.model.lr,
-        weight_decay=cfg.model.weight_decay,
-        scheduler_patience=cfg.model.scheduler.patience,
-        scheduler_factor=cfg.model.scheduler.factor,
+        lr=cfg.litmodule.lr,
+        weight_decay=cfg.litmodule.weight_decay,
+        scheduler_patience=cfg.litmodule.scheduler.patience,
+        scheduler_factor=cfg.litmodule.scheduler.factor,
         num_classes=cfg.model.num_classes,
     )
 
