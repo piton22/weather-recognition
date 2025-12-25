@@ -2,9 +2,15 @@ defaults:
   - _self_
   - data: datamodule
   - model: resnet18
-  - litmodule: model.resnet18.litmodule
   - train: trainer
   - mlflow: mlflow
   - logging: tensorboard
 
 seed: 42
+
+litmodule:
+  lr: 1e-3
+  weight_decay: 1e-4
+  scheduler:
+    patience: 3
+    factor: 0.5
