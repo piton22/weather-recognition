@@ -3625,6 +3625,7 @@ dependencies = [
     { name = "pytorch-lightning" },
     { name = "tensorboard" },
     { name = "torch" },
+    { name = "torchmetrics" },
     { name = "torchvision" },
     { name = "tqdm" },
 ]
@@ -3645,6 +3646,7 @@ requires-dist = [
     { name = "pytorch-lightning", specifier = ">=2.6.0" },
     { name = "tensorboard", specifier = ">=2.20.0" },
     { name = "torch", specifier = ">=2.9.1" },
+    { name = "torchmetrics", specifier = ">=1.8.2" },
     { name = "torchvision", specifier = ">=0.24.1" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]

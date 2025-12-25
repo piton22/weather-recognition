@@ -9,14 +9,14 @@ class ResNet18Classifier(nn.Module):
         self.model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 
         # Заморозка большей части сети
-        for p in self.model.parameters():
-            p.requires_grad = False
+        for param in self.model.parameters():
+            param.requires_grad = False
 
         # Разморозка последних блоков
-        for p in self.model.layer3.parameters():
-            p.requires_grad = True
-        for p in self.model.layer4.parameters():
-            p.requires_grad = True
+        for param in self.model.layer3.parameters():
+            param.requires_grad = True
+        for param in self.model.layer4.parameters():
+            param.requires_grad = True
 
         in_f = self.model.fc.in_features
         self.model.fc = nn.Sequential(
@@ -27,5 +27,5 @@ class ResNet18Classifier(nn.Module):
             nn.Linear(256, num_classes),
         )
 
-    def forward(self, x):
-        return self.model(x)
+    def forward(self, input_features):
+        return self.model(input_features)

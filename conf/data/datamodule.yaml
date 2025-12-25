@@ -4,3 +4,4 @@ num_workers: 4
 
 train_val_split: 0.8
 val_split_within: 0.2
+seed: ${..seed}

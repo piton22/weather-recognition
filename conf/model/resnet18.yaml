@@ -1,2 +1,8 @@
 _target_: models.model_resnet.ResNet18Classifier
 num_classes: ???
+
+lr: 1e-3
+weight_decay: 1e-4
+scheduler:
+  patience: 3
+  factor: 0.5

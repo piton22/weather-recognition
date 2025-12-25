@@ -23,5 +23,5 @@ class SimpleCNN(nn.Module):
             nn.Linear(256, num_classes),
         )
 
-    def forward(self, x):
-        return self.classifier(self.features(x))
+    def forward(self, input_features):
+        return self.classifier(self.features(input_features))

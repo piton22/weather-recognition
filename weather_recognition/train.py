@@ -73,6 +73,7 @@ def main(cfg: DictConfig):
         num_workers=cfg.data.num_workers,
         train_val_split=cfg.data.train_val_split,
         val_split_within=cfg.data.val_split_within,
+        seed=cfg.seed,
     )
     dm.setup()
 
@@ -81,7 +82,14 @@ def main(cfg: DictConfig):
 
     # --- Instantiate model ---
     model = instantiate(cfg.model)
-    lit_model = LitWeather(model)
+    lit_model = LitWeather(
+        model,
+        lr=cfg.model.lr,
+        weight_decay=cfg.model.weight_decay,
+        scheduler_patience=cfg.model.scheduler.patience,
+        scheduler_factor=cfg.model.scheduler.factor,
+        num_classes=cfg.model.num_classes,
+    )
 
     # --- Callbacks ---
     callbacks = [

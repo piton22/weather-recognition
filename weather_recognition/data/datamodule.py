@@ -8,11 +8,12 @@ from torch.utils.data import DataLoader, random_split
 class WeatherDataModule(pl.LightningDataModule):
     def __init__(
         self,
-        data_dir,
-        batch_size=512,
-        num_workers=4,
-        train_val_split=0.8,
-        val_split_within=0.2,
+        data_dir: str,
+        batch_size: int = 512,
+        num_workers: int = 4,
+        train_val_split: float = 0.8,
+        val_split_within: float = 0.2,
+        seed: int = 42,
     ):
         super().__init__()
         self.data_dir = data_dir
@@ -21,6 +22,7 @@ class WeatherDataModule(pl.LightningDataModule):
 
         self.train_val_split = train_val_split
         self.val_split_within = val_split_within
+        self.seed = seed
 
         self.dataset = None
         self.train_set = None
@@ -37,7 +39,9 @@ class WeatherDataModule(pl.LightningDataModule):
         train_val_size = int(self.train_val_split * len(self.dataset))
         test_size = len(self.dataset) - train_val_size
         train_val, test = random_split(
-            self.dataset, [train_val_size, test_size], generator=torch.Generator().manual_seed(42)
+            self.dataset,
+            [train_val_size, test_size],
+            generator=torch.Generator().manual_seed(self.seed),
         )
 
         # Разделяем train и val
@@ -45,7 +49,7 @@ class WeatherDataModule(pl.LightningDataModule):
         train_size = len(train_val) - val_size
 
         self.train_set, self.val_set = random_split(
-            train_val, [train_size, val_size], generator=torch.Generator().manual_seed(42)
+            train_val, [train_size, val_size], generator=torch.Generator().manual_seed(self.seed)
         )
 
         # Назначаем трансформации
