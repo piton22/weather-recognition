@@ -30,7 +30,8 @@
 
 Разобьем на обучающую и тестовую выборки в соотношении 80/20. Для валидации
 модели во время обучения выделим на валидационную выборку 20% от обучающей. Для
-воспроизводимости зафиксируем seed = 42 (этот параметр можно задать при запуске обучения в Hydra CLI).
+воспроизводимости зафиксируем seed = 42 (этот параметр можно задать при запуске
+обучения в Hydra CLI).
 
 ## Датасеты
 
@@ -75,17 +76,18 @@
 
 **Фреймворк**: PyTorch Lightning
 
-
 ## Технический стек
-**Управление зависимостями**: uv  
 
-**Обучение**: PyTorch Lightning  
+**Управление зависимостями**: uv
 
-**Логирование**: MLflow + TensorBoard (train_loss, val_loss, train_f1, val_f1, test_f1, train_acc, val_acc, test_acc)  
+**Обучение**: PyTorch Lightning
 
-**Управление данными**: DVC (S3/Yandex Object Storage)  
+**Логирование**: MLflow + TensorBoard (train_loss, val_loss, train_f1, val_f1,
+test_f1, train_acc, val_acc, test_acc)
 
-**Конфигурация**: Hydra (иерархические yaml + CLI)  
+**Управление данными**: DVC (S3/Yandex Object Storage)
+
+**Конфигурация**: Hydra (иерархические yaml + CLI)
 
 **Качество кода**: Ruff + pre-commit
 
@@ -185,7 +187,8 @@ uv run train.py data.batch_size=64
 
 - `train.max_epochs` — Количество эпох (по умолчанию: 10)
 
-#### Параметры модели (model.*)
+#### Параметры модели (model.\*)
+
 - `model.lr` — Learning rate (по умолчанию: 1e-3)
 - `model.weight_decay` — Weight decay для Adam (по умолчанию: 1e-4)
 - `model.scheduler.patience` — Patience для ReduceLROnPlateau (по умолчанию: 3)
