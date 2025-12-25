@@ -174,32 +174,31 @@ uv run train.py data.batch_size=64
 ### Доступные конфигурации
 
 #### Модели (model=)
-
 - `resnet18` — ResNet18 (по умолчанию)
 - `simplecnn` — Легковесная CNN
 
-#### Параметры данных (data.\*)
-
+#### Параметры данных (data.*)
 - `data.batch_size` — Размер батча (по умолчанию: 512)
 - `data.num_workers` — Количество воркеров (по умолчанию: 4)
+- `data.train_val_split` — Доля train+val (по умолчанию: 0.8)
+- `data.val_split_within` — Доля val из train (по умолчанию: 0.2)
 
-#### Параметры обучения (train.\*)
-
+#### Параметры обучения (train.*)
 - `train.max_epochs` — Количество эпох (по умолчанию: 10)
 
-#### Параметры модели (model.\*)
+#### Параметры LightningModule (litmodule.*)
+- `litmodule.lr` — Learning rate (по умолчанию: 1e-3)
+- `litmodule.weight_decay` — Weight decay для Adam (по умолчанию: 1e-4)
+- `litmodule.scheduler.patience` — Patience для ReduceLROnPlateau (по умолчанию: 3)
+- `litmodule.scheduler.factor` — Фактор уменьшения LR (по умолчанию: 0.5)
 
-- `model.lr` — Learning rate (по умолчанию: 1e-3)
-- `model.weight_decay` — Weight decay для Adam (по умолчанию: 1e-4)
-- `model.scheduler.patience` — Patience для ReduceLROnPlateau (по умолчанию: 3)
-- `model.scheduler.factor` — Фактор уменьшения LR (по умолчанию: 0.5)
+#### Параметры логирования (logging.*)
+- `logging.save_dir` — Директория для TensorBoard логов (по умолчанию: `logs`)
+- `logging.name` — Имя эксперимента TensorBoard (по умолчанию: `weather_recognition`)
 
-#### Параметры логирования (logging.\*)
+#### Глобальные параметры
+- `seed` — Random seed (по умолчанию: 42)
 
-- `logging.save_dir` — Директория для TensorBoard логов (по умолчанию: logs)
-
-- `logging.name` — Имя эксперимента TensorBoard (по умолчанию:
-  weather_recognition)
 
 ## Результаты обучения
 
