@@ -127,6 +127,7 @@ uvx mlflow server --host 127.0.0.1 --port 8080
 ## Train
 
 Перед обучения заходим в python-пакет
+
 ```bash
 cd weather_recognition
 ```
