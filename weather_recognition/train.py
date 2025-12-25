@@ -8,7 +8,7 @@ import torch
 from data.datamodule import WeatherDataModule
 from data.dvc_utils import pull_data
 from hydra.utils import instantiate
-from litmodule import LitWeather
+from litmodule import LitWeather, ModelConfig
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import MLFlowLogger, TensorBoardLogger
@@ -82,14 +82,16 @@ def main(cfg: DictConfig):
 
     # --- Instantiate model ---
     model = instantiate(cfg.model)
-    lit_model = LitWeather(
-        model,
+
+    model_cfg = ModelConfig(
         lr=cfg.litmodule.lr,
         weight_decay=cfg.litmodule.weight_decay,
         scheduler_patience=cfg.litmodule.scheduler.patience,
         scheduler_factor=cfg.litmodule.scheduler.factor,
         num_classes=cfg.model.num_classes,
     )
+
+    lit_model = LitWeather(model, model_cfg)
 
     # --- Callbacks ---
     callbacks = [
